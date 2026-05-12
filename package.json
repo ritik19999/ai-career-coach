@@ -1,8 +1,7 @@
 {
- 
   "scripts": {
-    "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd Frontend && npm run dev",
+    "dev:backend": "cd Backend && npm run dev",
 
     "start:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
 
@@ -10,7 +9,7 @@
 
     "test:e2e": "playwright test",
 
-    "test:all": "npm run start:all"
+    "test:ci": "npm run start:all & npm run wait:apps && npm run test:e2e"
   },
 
   "devDependencies": {
