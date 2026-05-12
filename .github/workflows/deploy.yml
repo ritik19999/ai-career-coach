@@ -1,92 +1,79 @@
-name: CI/CD to AWS ECS
+name: Full Stack CI + E2E
 
 on:
   push:
-    branches:
-      - main
-
-env:
-  AWS_REGION: ap-south-1
-  ECR_REPOSITORY: my-app
-  ECS_CLUSTER: my-cluster
-  ECS_SERVICE: my-service
-  CONTAINER_NAME: my-app
-  IMAGE_TAG: ${{ github.sha }}
+    branches: [main]
 
 jobs:
-  deploy:
-    name: Build, Push, Deploy
+  build-frontend:
+    name: Frontend Build
     runs-on: ubuntu-latest
 
-    steps:
-      # 📥 1. Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    defaults:
+      run:
+        working-directory: frontend
 
-      # 🟢 2. Setup Node (for tests/build if needed)
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: npm
 
-      # 📦 3. Install dependencies
-      - name: Install dependencies
-        run: npm install
+      - run: npm ci
+      - run: npm run build
 
-      # 🧪 4. Run tests (optional but recommended)
-      - name: Run tests
-        run: npm test
 
-      # 🔐 5. Configure AWS credentials
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          node-version: 18
+          cache: npm
 
-      # 🔑 6. Login to Amazon ECR
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      - run: npm ci
+      - run: npm test
 
-      # 🐳 7. Build Docker image
-      - name: Build Docker image
+
+  e2e-tests:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build-frontend, backend-tests]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # Start backend + frontend in background
+      - name: Start servers
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          npm run dev:backend &
+          npm run dev:frontend &
 
-      # 🏷️ 8. Tag Docker image
-      - name: Tag Docker image
-        run: |
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG \
-          ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+      # Wait for frontend to be ready
+      - name: Wait for app
+        run: npx wait-on http://localhost:5173
 
-      # 📤 9. Push image to ECR
-      - name: Push Docker image
-        run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-
-      # 📝 10. Update ECS task definition
-      - name: Update ECS task definition
-        id: task-def
-        run: |
-          TASK_DEF=$(aws ecs describe-task-definition \
-            --task-definition $ECR_REPOSITORY \
-            --query taskDefinition)
-
-          NEW_TASK_DEF=$(echo $TASK_DEF | jq \
-            --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG" \
-            '.containerDefinitions[0].image = $IMAGE')
-
-          echo $NEW_TASK_DEF > new-task-def.json
-
-          aws ecs register-task-definition \
-            --cli-input-json file://new-task-def.json
-
-      # 🚀 11. Deploy new revision to ECS
-      - name: Deploy to ECS
-        run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE \
-            --force-new-deployment
+      # Run E2E tests
+      - name: Run Playwright tests
+        run: npm run test:e2e

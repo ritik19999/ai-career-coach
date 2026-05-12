@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router"
 import { useNavigate } from "react-router"
 import { useAuth } from "../hooks/useAuth"
+import ThinkingLoader from "../../components/Loader"
 
 const Register = () => {
     const [username, setUsername] = useState("")
@@ -16,7 +17,7 @@ const Register = () => {
         navigate("/")
     }
     if (loading) {
-        return <main><h1>Loading......</h1></main>
+        return <ThinkingLoader text="Loading"></ThinkingLoader>
     }
     return (
         <main>

@@ -1,0 +1,21 @@
+{
+ 
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+
+    "start:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+
+    "wait:apps": "wait-on http://localhost:5173 http://localhost:3000",
+
+    "test:e2e": "playwright test",
+
+    "test:all": "npm run start:all"
+  },
+
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "concurrently": "^9.2.1",
+    "wait-on": "^9.0.10"
+  }
+}

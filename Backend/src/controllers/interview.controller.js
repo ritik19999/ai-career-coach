@@ -1,5 +1,5 @@
 const pdfParse = require("pdf-parse").default || require("pdf-parse");
-const generateInterviewReport = require("../services/ai.services")
+const { generateInterviewReport, generateResumePdf } = require("../services/ai.services")
 const interviewReportModel = require("../models/interviewReport.model");
 
 /**
@@ -52,7 +52,9 @@ async function generateInterViewReportController(req, res) {
                     tasks: typeof p === "string" ? [p] : p.tasks
                 }))
             };
-        } const normalized = normalizeAIResponse(interviewReportByAi);
+        }
+
+        const normalized = normalizeAIResponse(interviewReportByAi);
 
         const interviewReport = await interviewReportModel.create({
             user: req.user.id || req.user._id,
@@ -125,7 +127,7 @@ async function generateResumePdfController(req, res) {
     }
     const { resume, selfDescription, jobDescription } = interviewReport;
 
-    const pdfBuffer = await generateInterviewReport.generateResumePdf({ resume, jobDescription, selfDescription })
+    const pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription })
 
     res.set({
         "Content-Type": "application/pdf",

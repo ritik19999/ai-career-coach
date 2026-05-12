@@ -127,4 +127,8 @@ PDF Export (Puppeteer)
 git clone <repo-url>
 cd project
 npm install
+<<<<<<< HEAD
 npm run dev
+=======
+npm run dev
+>>>>>>> 09696b9 (logout button added)

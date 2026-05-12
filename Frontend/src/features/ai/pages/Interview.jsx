@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import '../styles/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate, useParams } from 'react-router'
+import ThinkingLoader from '../../components/Loader.jsx'
 
 
 
@@ -73,7 +74,7 @@ const Interview = () => {
     if (loading || !report) {
         return (
             <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
+                <ThinkingLoader text='Loading'></ThinkingLoader>
             </main>
         )
     }

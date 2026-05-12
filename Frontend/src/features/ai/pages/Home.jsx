@@ -2,8 +2,9 @@ import "../styles/home.scss"
 import { useInterview } from "../hooks/useInterview"
 import { useRef, useState } from "react";
 import { useNavigate } from 'react-router'
+import ThinkingLoader from "../../components/Loader";
 const Home = () => {
-    const { loading, generateReport ,reports} = useInterview();
+    const { loading, generateReport, reports } = useInterview();
     const [jobDescription, setJobDescription] = useState("");
     const [selfDescription, setSelfDescription] = useState("");
     const resumeInputRef = useRef();
@@ -25,7 +26,7 @@ const Home = () => {
 
     if (loading) {
         return (
-            <main><div>Loading your interview plan ...</div></main>
+            <ThinkingLoader text="Loading your interview plan"></ThinkingLoader>
         )
     }
     return (

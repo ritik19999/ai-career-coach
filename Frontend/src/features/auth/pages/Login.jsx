@@ -3,6 +3,7 @@ import "../auth.form.scss"
 import { useState } from "react"
 import { useAuth } from "../hooks/useAuth"
 import { useNavigate } from "react-router"
+import ThinkingLoader from "../../components/Loader"
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("")
@@ -16,7 +17,7 @@ const Login = () => {
     }
 
     if (loading) {
-        return <main><h1>Loading......</h1></main>
+        return <ThinkingLoader text="Loading......"></ThinkingLoader>
     }
     return (
         <main>
