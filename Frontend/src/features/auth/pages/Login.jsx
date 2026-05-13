@@ -12,12 +12,12 @@ const Login = () => {
     const { loading, handleLogin } = useAuth()
     const handleSubmit = async (e) => {
         e.preventDefault()
-        handleLogin({ email, password });
+        await handleLogin({ email, password });
         navigate("/")
     }
 
     if (loading) {
-        return <ThinkingLoader text="Loading......"></ThinkingLoader>
+        return <ThinkingLoader text="Loading"></ThinkingLoader>
     }
     return (
         <main>
