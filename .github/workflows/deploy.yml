@@ -54,7 +54,7 @@ jobs:
       MONGO_URI: ${{ secrets.MONGO_URI }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       GOOGLE_GEMINI_API_KEY: ${{ secrets.GOOGLE_GEMINI_API_KEY }}
-      
+
     steps:
       - uses: actions/checkout@v4
 
@@ -66,19 +66,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install backend dependencies
+        run: cd Backend && npm ci
+
+      - name: Install frontend dependencies
+        run: cd Frontend && npm ci
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # Start backend + frontend in background
-      - name: Start servers
-        run: |
-          npm run dev:backend &
-          npm run dev:frontend &
-
-      # Wait for frontend to be ready
-      - name: Wait for app
-        run: npx wait-on http://localhost:5173
-
       # Run E2E tests
-      - name: Run Playwright tests
-        run: npm run test:e2e
+      - name: Run E2E tests
+        run: npm run test:ci
