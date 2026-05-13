@@ -50,6 +50,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-frontend, backend-tests]
 
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      GOOGLE_GEMINI_API_KEY: ${{ secrets.GOOGLE_GEMINI_API_KEY }}
+      
     steps:
       - uses: actions/checkout@v4
 
