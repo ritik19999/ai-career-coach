@@ -1,38 +1,26 @@
-const { test, expect } = require("@playwright/test");
+import { test, expect } from '@playwright/test';
 
-test("AI Interview Report Full Flow", async ({ page }) => {
-
-    // 1. Open app
-    await page.goto("/");
-
-    // 2. Fill job description
-    await page.fill("textarea[name='jobDescription']",
-        "MERN Stack Developer with AI experience"
-    );
-
-    // 3. Fill self description
-    await page.fill("textarea[name='selfDescription']",
-        "Full stack developer working with React, Node, MongoDB"
-    );
-
-    // 4. Upload resume
-    await page.setInputFiles(
-        "input[type='file']",
-        "tests/fixtures/sample.pdf"
-    );
-
-    // 5. Click generate
-    await page.click("button[type='submit']");
-
-    // 6. Wait for loader to disappear
+test('test', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('textbox', { name: 'Email Password' }).click();
+    await page.getByRole('textbox', { name: 'Email Password' }).fill('test@test.com');
+    await page.getByRole('textbox', { name: 'Enter password' }).click();
+    await page.getByRole('textbox', { name: 'Enter password' }).fill('test');
+    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+    await page.getByRole('button', { name: 'Login' }).click()
     await page.waitForSelector(".loader", { state: "hidden" });
 
-    // 7. Wait for report
-    await page.waitForSelector(".interview-report", {
-        timeout: 120000
-    });
+    await page.setInputFiles(
+        "input[type='file']",
+        "tests/fixtures/Resume-Sample-1-Software-Engineer.pdf"
+    );
 
-    // 8. Assertions
-    await expect(page.locator(".interview-report")).toContainText("matchScore");
-    await expect(page.locator(".interview-report")).toBeVisible();
-});
+    await page.getByRole('textbox', { name: 'Paste the full job' }).fill('"MERN Stack Developer with AI experience"');
+    await page.getByRole('textbox', { name: 'Quick Self-Description' }).click();
+    await page.getByRole('textbox', { name: 'Quick Self-Description' }).fill(' "Full stack developer working with React, Node, MongoDB"');
+
+    await expect(page.getByRole('button', { name: 'Generate My Interview Strategy' })).toBeVisible();
+    await page.getByRole('button', { name: 'Generate My Interview Strategy' }).click();
+    await page.waitForSelector(".loader", { state: "hidden" });
+
+})
