@@ -9,7 +9,7 @@
 
     "test:e2e": "playwright test",
 
-    "test:ci": "npm run start:all & npm run wait:apps && npm run test:e2e"
+    "test:ci": "start-server-and-test start:all http://localhost:5173 playwright test"
   },
 
   "devDependencies": {
