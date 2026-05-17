@@ -13,6 +13,9 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }))
+app.get("/health", (req, res) => {
+    res.send("Backend is running 🚀");
+});
 //require all the routes here
 const authRouter = require("./routes/auth.routes");
 const interviewRouter = require("./routes/interview.routes")
